@@ -18,7 +18,7 @@ class Rover:
 		self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
 		self.clock = pygame.time.Clock()
 
-		self.joy_motion = [0, 0, 0, 0]  # left x, left y, right x, right y
+		self.joy_motion = [0, 0, 0, 0, 0, 0]  # left x, left y, right x, right y, left trigger, right trigger
 		self.running = True
 
 	def run(self):
@@ -37,18 +37,23 @@ class Rover:
 
 	def handle_input(self):
 		for event in pygame.event.get():
-			if event.type == JOYAXISMOTION:
+			if event.type == pygame.JOYDEVICEADDED: # Controller connected
+				joy = pygame.joystick.Joystick(event.device_index)
+				self.joysticks.append(joy)
+			if event.type == pygame.JOYDEVICEREMOVED: # Controller disconnected
+				self.joysticks = [j for j in self.joysticks if j.get_instance_id() != event.instance_id]
+			if event.type == JOYAXISMOTION: # Controller axis 
 				self.joy_motion[event.axis] = event.value
 				self.sanitize_joy_input()
 				print(self.joy_motion)
-			if event.type == pygame.QUIT:
+			if event.type == pygame.QUIT: # X button in pygame window
 				self.running = False
 
 	def sanitize_joy_input(self):
 		for i in range(len(self.joy_motion)):
-			if abs(self.joy_motion[i]) <= 0.15:  # handle dead zone
+			if i <= 3 and abs(self.joy_motion[i]) <= 0.12:  # handle dead zone on joysticks
 				self.joy_motion[i] = 0
-			self.joy_motion[i] = max(-1, min(1, self.joy_motion[i]))  # clamp -1..1
+			self.joy_motion[i] = max(-1, min(1, self.joy_motion[i]))  # clamp -1 to 1
 			self.joy_motion[i] = round(self.joy_motion[i], 2)  # round to hundredths
 
 	def draw(self):
