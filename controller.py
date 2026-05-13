@@ -18,7 +18,7 @@ class Rover:
 		self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
 		self.clock = pygame.time.Clock()
 
-		self.joy_motion = [0, 0, 0, 0, 0, 0]  # left x, left y, right x, right y, left trigger, right trigger
+		self.controller_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
 		self.running = True
 
 	def run(self):
@@ -26,7 +26,7 @@ class Rover:
 		while self.running:
 			self.handle_input()
 			self.draw()
-			self.clock.tick(144)
+			self.clock.tick(280)
 		pygame.quit()
 
 	def setup(self):
@@ -43,18 +43,18 @@ class Rover:
 			if event.type == pygame.JOYDEVICEREMOVED: # Controller disconnected
 				self.joysticks = [j for j in self.joysticks if j.get_instance_id() != event.instance_id]
 			if event.type == JOYAXISMOTION: # Controller axis 
-				self.joy_motion[event.axis] = event.value
+				self.controller_motion[event.axis] = event.value
 				self.sanitize_joy_input()
-				print(self.joy_motion)
+				print(self.controller_motion)
 			if event.type == pygame.QUIT: # X button in pygame window
 				self.running = False
 
 	def sanitize_joy_input(self):
-		for i in range(len(self.joy_motion)):
-			if i <= 3 and abs(self.joy_motion[i]) <= 0.12:  # handle dead zone on joysticks
-				self.joy_motion[i] = 0
-			self.joy_motion[i] = max(-1, min(1, self.joy_motion[i]))  # clamp -1 to 1
-			self.joy_motion[i] = round(self.joy_motion[i], 2)  # round to hundredths
+		for i in range(len(self.controller_motion)):
+			if i <= 3 and abs(self.controller_motion[i]) <= 0.12:  # handle dead zone on joysticks
+				self.controller_motion[i] = 0
+			self.controller_motion[i] = max(-1, min(1, self.controller_motion[i]))  # clamp -1 to 1
+			self.controller_motion[i] = round(self.controller_motion[i], 2)  # round to hundredths
 
 	def draw(self):
 		self.screen.fill((0, 0, 0))
@@ -68,11 +68,11 @@ class Rover:
 		pygame.gfxdraw.circle(self.screen, (self.third_width*2), self.half_height, self.joy_circle_radi, (255, 255, 255))
 
 		# Inner circles
-		div_val = 1.5
-		left_x = int(self.third_width + round(self.joy_motion[0] * (self.joy_circle_radi/div_val)))
-		left_y = int(self.half_height + round(self.joy_motion[1] * (self.joy_circle_radi/div_val)))
-		right_x = int(self.third_width*2 + round(self.joy_motion[2] * (self.joy_circle_radi/div_val)))
-		right_y = int(self.half_height + round(self.joy_motion[3] * (self.joy_circle_radi/div_val)))
+		div_val = 1.5 # lower value = higher spread
+		left_x = int(self.third_width + round(self.controller_motion[0] * (self.joy_circle_radi/div_val)))
+		left_y = int(self.half_height + round(self.controller_motion[1] * (self.joy_circle_radi/div_val)))
+		right_x = int(self.third_width*2 + round(self.controller_motion[2] * (self.joy_circle_radi/div_val)))
+		right_y = int(self.half_height + round(self.controller_motion[3] * (self.joy_circle_radi/div_val)))
 
 		pygame.gfxdraw.filled_circle(self.screen, left_x, left_y, int(self.joy_circle_radi/2), (255, 255, 255))
 		pygame.gfxdraw.filled_circle(self.screen, right_x, right_y, int(self.joy_circle_radi/2), (255, 255, 255))
