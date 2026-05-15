@@ -68,7 +68,7 @@ class Rover:
 		pygame.gfxdraw.circle(self.screen, (self.third_width*2), self.half_height, self.joy_circle_radi, (255, 255, 255))
 
 		# Inner circles
-		div_val = 1.5 # lower value = higher spread
+		div_val = 1.5 # how far the joystick moves from the center of the outer circle, smaller number = more movement
 		left_x = int(self.third_width + round(self.controller_motion[0] * (self.joy_circle_radi/div_val)))
 		left_y = int(self.half_height + round(self.controller_motion[1] * (self.joy_circle_radi/div_val)))
 		right_x = int(self.third_width*2 + round(self.controller_motion[2] * (self.joy_circle_radi/div_val)))
