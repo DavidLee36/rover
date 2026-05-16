@@ -1,86 +1,52 @@
 import pygame
 import pygame.gfxdraw
-from pygame.locals import *
-import time
 
-class Rover:
-	def __init__(self):
-		# Dimensions
-		self.screen_width = 1200
-		self.screen_height = 720
-		self.third_width = int(self.screen_width/3)
-		self.half_height = int(self.screen_height/2)
-		self.joy_circle_radi = 100
+import config
 
-		pygame.init()
-		pygame.joystick.init()
+joysticks = []
+axis_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
 
-		self.joysticks = [pygame.joystick.Joystick(i) for i in range(pygame.joystick.get_count())]
-		self.clock = pygame.time.Clock()
+JOY_CIRCLE_RADIUS = 100
+JOY_DIV = 1.5  # smaller = more inner circle movement relative to outer
 
-		self.controller_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
-		self.running = True
+def init():
+	pygame.joystick.init()
+	for i in range(pygame.joystick.get_count()):
+		joysticks.append(pygame.joystick.Joystick(i))
 
-	def run(self):
-		self.setup()
-		while self.running:
-			self.handle_input()
-			self.draw()
-			self.clock.tick(280)
-		pygame.quit()
+def on_device_added(device_index):
+	joysticks.append(pygame.joystick.Joystick(device_index))
 
-	def setup(self):
-		self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
-		self.clock = pygame.time.Clock()
-		self.font = pygame.font.SysFont("Arial", 18, bold=True)
-		pygame.display.set_caption("Rover")
+def on_device_removed(instance_id):
+	global joysticks
+	joysticks = [j for j in joysticks if j.get_instance_id() != instance_id]
 
-	def handle_input(self):
-		for event in pygame.event.get():
-			if event.type == pygame.JOYDEVICEADDED: # Controller connected
-				joy = pygame.joystick.Joystick(event.device_index)
-				self.joysticks.append(joy)
-			if event.type == pygame.JOYDEVICEREMOVED: # Controller disconnected
-				self.joysticks = [j for j in self.joysticks if j.get_instance_id() != event.instance_id]
-			if event.type == JOYAXISMOTION: # Controller axis 
-				self.controller_motion[event.axis] = event.value
-				self.sanitize_joy_input()
-				print(self.controller_motion)
-			if event.type == pygame.QUIT: # X button in pygame window
-				self.running = False
+def on_axis_motion(axis, value):
+	axis_motion[axis] = value
+	sanitize_axis_input()
+	print(axis_motion)
 
-	def sanitize_joy_input(self):
-		for i in range(len(self.controller_motion)):
-			if i <= 3 and abs(self.controller_motion[i]) <= 0.12:  # handle dead zone on joysticks
-				self.controller_motion[i] = 0
-			self.controller_motion[i] = max(-1, min(1, self.controller_motion[i]))  # clamp -1 to 1
-			self.controller_motion[i] = round(self.controller_motion[i], 2)  # round to hundredths
+def sanitize_axis_input():
+	for i in range(len(axis_motion)):
+		if i <= 3 and abs(axis_motion[i]) <= 0.12:  # dead zone on joysticks
+			axis_motion[i] = 0
+		axis_motion[i] = max(-1, min(1, axis_motion[i]))  # clamp -1 to 1
+		axis_motion[i] = round(axis_motion[i], 2)
 
-	def draw(self):
-		self.screen.fill((0, 0, 0))
-		self.draw_joy_circles()
-		self.draw_fps()
-		pygame.display.update()
+def draw(screen):
+	draw_joy_circles(screen)
 
-	def draw_joy_circles(self):
-		# Outer circles
-		pygame.gfxdraw.circle(self.screen, self.third_width, self.half_height, self.joy_circle_radi, (255, 255, 255))
-		pygame.gfxdraw.circle(self.screen, (self.third_width*2), self.half_height, self.joy_circle_radi, (255, 255, 255))
+def draw_joy_circles(screen):
+	third_width = config.SCREEN_WIDTH // 3
+	half_height = config.SCREEN_HEIGHT // 2
 
-		# Inner circles
-		div_val = 1.5 # how far the joystick moves from the center of the outer circle, smaller number = more movement
-		left_x = int(self.third_width + round(self.controller_motion[0] * (self.joy_circle_radi/div_val)))
-		left_y = int(self.half_height + round(self.controller_motion[1] * (self.joy_circle_radi/div_val)))
-		right_x = int(self.third_width*2 + round(self.controller_motion[2] * (self.joy_circle_radi/div_val)))
-		right_y = int(self.half_height + round(self.controller_motion[3] * (self.joy_circle_radi/div_val)))
+	pygame.gfxdraw.circle(screen, third_width, half_height, JOY_CIRCLE_RADIUS, (255, 255, 255))
+	pygame.gfxdraw.circle(screen, third_width * 2, half_height, JOY_CIRCLE_RADIUS, (255, 255, 255))
 
-		pygame.gfxdraw.filled_circle(self.screen, left_x, left_y, int(self.joy_circle_radi/2), (255, 255, 255))
-		pygame.gfxdraw.filled_circle(self.screen, right_x, right_y, int(self.joy_circle_radi/2), (255, 255, 255))
+	left_x  = int(third_width + round(axis_motion[0] * (JOY_CIRCLE_RADIUS / JOY_DIV)))
+	left_y  = int(half_height + round(axis_motion[1] * (JOY_CIRCLE_RADIUS / JOY_DIV)))
+	right_x = int(third_width * 2 + round(axis_motion[2] * (JOY_CIRCLE_RADIUS / JOY_DIV)))
+	right_y = int(half_height + round(axis_motion[3] * (JOY_CIRCLE_RADIUS / JOY_DIV)))
 
-	def draw_fps(self):
-		fps = str(int(self.clock.get_fps()))
-		text = self.font.render(fps + " fps", True, (255, 255, 255))
-		self.screen.blit(text, (10, 10))
-
-if __name__ == "__main__":
-	Rover().run()
+	pygame.gfxdraw.filled_circle(screen, left_x, left_y, JOY_CIRCLE_RADIUS // 2, (255, 255, 255))
+	pygame.gfxdraw.filled_circle(screen, right_x, right_y, JOY_CIRCLE_RADIUS // 2, (255, 255, 255))
