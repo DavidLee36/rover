@@ -1,8 +1,10 @@
 #include <Arduino.h>
 
 void flashLED(int);
+bool handleInput();
 
 bool onBoardLEDState = false;
+unsigned long lastBlinkTime = 0;
 
 void setup()
 {
@@ -24,12 +26,23 @@ void loop()
 		return;
 	}
 
-	if(currTime % 1000 == 0)
+	handleInput();
+
+	if(currTime - lastBlinkTime >= 1000)
 	{
-		if(onBoardLEDState) digitalWrite(LED_BUILTIN, LOW);
-		else digitalWrite(LED_BUILTIN, HIGH);
+		lastBlinkTime = currTime;
 		onBoardLEDState = !onBoardLEDState;
+		digitalWrite(LED_BUILTIN, onBoardLEDState ? HIGH : LOW);
 	}
+}
+
+bool handleInput()
+{
+	if(!Serial.available()) return false;
+
+	String data = Serial.readStringUntil('\n');
+	Serial.println(data);
+	return true;
 }
 
 void flashLED(int d)
