@@ -1,8 +1,8 @@
 import pygame
 from enum import Enum
 
-import controller
-import config
+import Code.pi.controller as controller
+import Code.pi.config as config
 
 class Screen(Enum):
 	CONTROLLER = 0

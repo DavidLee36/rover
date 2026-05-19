@@ -1,7 +1,7 @@
 import pygame
 import pygame.gfxdraw
 
-import config
+import Code.pi.config as config
 
 joysticks = []
 axis_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
