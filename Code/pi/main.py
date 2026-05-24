@@ -1,8 +1,9 @@
 import pygame
 from enum import Enum
 
-import Code.pi.controller as controller
-import Code.pi.config as config
+import controller as controller
+import communicate as comm
+import config as config
 
 class Screen(Enum):
 	CONTROLLER = 0
@@ -13,6 +14,8 @@ running = True
 screen = None
 clock = None
 font = None
+
+update_teensy = False
 
 def init():
 	global screen, clock, font
@@ -28,11 +31,15 @@ def main_loop():
 	while running:
 		handle_input()
 		draw()
+		if update_teensy:
+			print(comm.send(comm.axis_motion_to_teensy(controller.axis_motion)))
 		clock.tick(config.FPS)
 	pygame.quit()
 
 def handle_input():
 	global running
+	global update_teensy
+	update_teensy = False
 	for event in pygame.event.get():
 		if event.type == pygame.JOYDEVICEADDED:
 			controller.on_device_added(event.device_index)
@@ -40,6 +47,7 @@ def handle_input():
 			controller.on_device_removed(event.instance_id)
 		if event.type == pygame.JOYAXISMOTION:
 			controller.on_axis_motion(event.axis, event.value)
+			update_teensy = True
 		if event.type == pygame.QUIT:
 			running = False
 

@@ -1,10 +1,11 @@
 import pygame
 import pygame.gfxdraw
 
-import Code.pi.config as config
+import config as config
 
 joysticks = []
 axis_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
+last_axis_motion = [0, 0, 0, 0, -1, -1]
 
 JOY_CIRCLE_RADIUS = 100
 JOY_DIV = 1.5  # smaller = more inner circle movement relative to outer
@@ -24,7 +25,7 @@ def on_device_removed(instance_id):
 def on_axis_motion(axis, value):
 	axis_motion[axis] = value
 	sanitize_axis_input()
-	print(axis_motion)
+	#print(axis_motion)
 
 def sanitize_axis_input():
 	for i in range(len(axis_motion)):
