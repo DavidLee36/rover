@@ -32,7 +32,8 @@ def main_loop():
 		handle_input()
 		draw()
 		if update_teensy:
-			print(comm.send(comm.axis_motion_to_teensy(controller.axis_motion)))
+			res = comm.send(comm.axis_motion_to_teensy(controller.axis_motion))
+			#print(res)
 		clock.tick(config.FPS)
 	pygame.quit()
 
