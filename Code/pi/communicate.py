@@ -1,4 +1,5 @@
 import serial
+import math
 
 import config as config
 
@@ -12,4 +13,4 @@ def send(msg):
 def axis_motion_to_teensy(arr):
 	left_dir = "F" if arr[1] > 0 else "R"
 	right_dir = "F" if arr[3] > 0 else "R"
-	return f"{left_dir}{abs(arr[1])*100}|{right_dir}{abs(arr[3]*100)}"
+	return f"{left_dir}{math.floor(abs(arr[1])*config.MAX_SPEED)}|{right_dir}{math.floor(abs(arr[3]*config.MAX_SPEED))}"

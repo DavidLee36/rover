@@ -4,3 +4,4 @@ FPS = 200
 TITLE = "Rover"
 COM = "COM4"
 BAUD = 115200
+MAX_SPEED = 50 # 0 - 100
