@@ -11,10 +11,18 @@ unsigned long lastBlinkTime = 0;
 // Motor direction and power: leftFront, leftRear, rightFront, rightRear
 bool motorDirections[4]; // true = forward | false = backward
 int motorPower[4]; // 0-255
+const int PWM_PINS[4] = {2, 4, 6, 8};
+const int DIR_PINS[4] = {3, 5, 7, 9};
 
 void setup()
 {
 	pinMode(LED_BUILTIN, OUTPUT);
+
+	for(int i = 0; i < 4; i++)
+	{
+		pinMode(PWM_PINS[i], OUTPUT);
+		pinMode(DIR_PINS[i], OUTPUT);
+	}
 
 	Serial.begin(115200);
 	while (!Serial)
@@ -34,6 +42,7 @@ void loop()
 	}
 
 	bool receivedInput = handleInput();
+	toMotors();
 
 	if (currTime - lastBlinkTime >= 1000) // Blink LED every second to show OK status
 	{
@@ -93,7 +102,11 @@ bool handleInput()
 
 void toMotors()
 {
-
+	for(int i = 0; i < 4; i++)
+	{
+		digitalWrite(DIR_PINS[i], motorDirections[i] ? HIGH : LOW);
+		analogWrite(PWM_PINS[i], motorPower[i]);
+	}
 }
 
 void flashLED(int d)
