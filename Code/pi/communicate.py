@@ -6,6 +6,9 @@ import config as config
 ser = serial.Serial(config.COM_LINUX, config.BAUD, timeout=0.1)
 ser.reset_input_buffer()
 
+def close():
+	ser.close()
+
 def send(msg):
 	ser.write((msg+"\n").encode())
 	return ser.readline().decode('utf-8', errors='ignore').strip()

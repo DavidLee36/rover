@@ -38,8 +38,8 @@ def draw(screen):
 	draw_joy_circles(screen)
 
 def draw_joy_circles(screen):
-	third_width = config.SCREEN_WIDTH // 3
-	half_height = config.SCREEN_HEIGHT // 2
+	third_width = screen.get_width() // 3
+	half_height = screen.get_height() // 2
 
 	pygame.gfxdraw.circle(screen, third_width, half_height, JOY_CIRCLE_RADIUS, (255, 255, 255))
 	pygame.gfxdraw.circle(screen, third_width * 2, half_height, JOY_CIRCLE_RADIUS, (255, 255, 255))

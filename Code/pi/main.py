@@ -22,7 +22,7 @@ def init():
 	pygame.init()
 	controller.init()
 
-	screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT))
+	screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 	clock = pygame.time.Clock()
 	font = pygame.font.SysFont("Arial", 18, bold=True)
 	pygame.display.set_caption(config.TITLE)
@@ -52,6 +52,10 @@ def handle_input():
 		if event.type == pygame.QUIT:
 			running = False
 
+	for joy in controller.joysticks:
+		if joy.get_button(config.QUIT_BTN_1) and joy.get_button(config.QUIT_BTN_2):
+			close()
+
 def draw():
 	screen.fill((0, 0, 0))
 	if current_screen == Screen.CONTROLLER:
@@ -62,6 +66,11 @@ def draw():
 def draw_fps():
 	text = font.render(str(int(clock.get_fps())) + " fps", True, (255, 255, 255))
 	screen.blit(text, (10, 10))
+
+def close():
+	global running
+	comm.close()
+	running = False
 
 if __name__ == "__main__":
 	init()

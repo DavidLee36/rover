@@ -4,6 +4,7 @@
 void flashLED(int);
 bool handleInput();
 void toMotors();
+void clearMotors();
 
 bool onBoardLEDState = false;
 unsigned long lastBlinkTime = 0;
