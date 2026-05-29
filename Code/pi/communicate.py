@@ -3,7 +3,7 @@ import math
 
 import config as config
 
-ser = serial.Serial(config.COM, config.BAUD, timeout=0.1)
+ser = serial.Serial(config.COM_LINUX, config.BAUD, timeout=0.1)
 
 def send(msg):
 	ser.write((msg+"\n").encode())
