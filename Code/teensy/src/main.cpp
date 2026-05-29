@@ -37,6 +37,7 @@ void loop()
 
 	if (!Serial) // No Serial, bail out and flash LED to show error status
 	{
+		clearMotors();
 		flashLED(100);
 		return;
 	}
@@ -50,6 +51,17 @@ void loop()
 		onBoardLEDState = !onBoardLEDState;
 		digitalWrite(LED_BUILTIN, onBoardLEDState ? HIGH : LOW);
 	}
+}
+
+/// @brief Set all motor power to 0
+void clearMotors()
+{
+	for(int i = 0; i < 4; i++)
+	{
+		motorPower[i] = 0;
+		motorDirections[i] = false; // un-important
+	}
+	toMotors(); // instantly call toMotors() with cleared motor state
 }
 
 /// @brief Handles serial input
