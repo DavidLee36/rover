@@ -39,43 +39,17 @@ def main_loop():
 	pygame.quit()
 
 def handle_input():
-	global running
-	global update_teensy
-	global should_draw
-	update_teensy = False
-	for event in pygame.event.get(): # Pygame events
-		if event.type == pygame.JOYDEVICEADDED: # Controller connected
-			controller.on_device_added(event.device_index)
+	global running, update_teensy, should_draw
+	events = pygame.event.get()
 
-		if event.type == pygame.JOYDEVICEREMOVED: # Controller disconnected
-			controller.on_device_removed(event.instance_id)
-
-		if event.type == pygame.JOYAXISMOTION: # Joystick or trigger movement
-			controller.on_axis_motion(event.axis, event.value)
-			update_teensy = True
-
-		if event.type == pygame.QUIT: # Pygame window closed
+	for event in events:
+		if event.type == pygame.QUIT:
 			close()
 
-		if event.type == pygame.JOYBUTTONUP:
-			if event.button == config.RS_BTN: # Toggle drawing
-				should_draw = not should_draw
-
-	for joy in controller.joysticks: # Check controller input state vs pygame events
-		if joy.get_button(config.SELECT_BTN) and joy.get_button(config.START_BTN): # Close keybind
-			close()
-
-		handle_speed_change(joy)
-
-def handle_speed_change(joy):
-	if joy.get_button(config.LB_BUTTON): # Reduce max speed
-		config.curr_max_speed -= config.SPEED_CHANGE
-		if config.curr_max_speed < config.MIN_SPEED: config.curr_max_speed = config.MIN_SPEED
-	elif joy.get_button(config.RB_BTN): # Increase max speed
-		config.curr_max_speed += config.SPEED_CHANGE
-		if config.curr_max_speed > config.MAX_SPEED: config.curr_max_speed = config.MAX_SPEED
-	config.curr_max_speed = round(config.curr_max_speed, 2)
-	#print(config.curr_max_speed)
+	result = controller.handle_input(events)
+	if result["close"]: close()
+	if result["toggle_draw"]: should_draw = not should_draw
+	update_teensy = result["needs_update"]
 
 def draw():
 	screen.fill((0, 0, 0))

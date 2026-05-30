@@ -21,10 +21,44 @@ def on_device_removed(instance_id):
 	global joysticks
 	joysticks = [j for j in joysticks if j.get_instance_id() != instance_id]
 
+def handle_input(events):
+	result = {"needs_update": False, "close": False, "toggle_draw": False}
+
+	for event in events:
+		if event.type == pygame.JOYDEVICEADDED:
+			on_device_added(event.device_index)
+		if event.type == pygame.JOYDEVICEREMOVED:
+			on_device_removed(event.instance_id)
+		if event.type == pygame.JOYAXISMOTION:
+			on_axis_motion(event.axis, event.value)
+			result["needs_update"] = True
+		if event.type == pygame.JOYBUTTONUP:
+			if event.button == config.RS_BTN:
+				result["toggle_draw"] = True
+
+	for joy in joysticks:
+		if joy.get_button(config.SELECT_BTN) and joy.get_button(config.START_BTN):
+			result["close"] = True
+		if handle_speed_change(joy): result["needs_update"] = True
+
+	return result
+
 def on_axis_motion(axis, value):
 	axis_motion[axis] = value
 	sanitize_joy_input()
 	#print(axis_motion)
+
+def handle_speed_change(joy):
+	if joy.get_button(config.LB_BUTTON):
+		config.curr_max_speed -= config.SPEED_CHANGE
+		if config.curr_max_speed < config.MIN_SPEED: config.curr_max_speed = config.MIN_SPEED
+	elif joy.get_button(config.RB_BTN):
+		config.curr_max_speed += config.SPEED_CHANGE
+		if config.curr_max_speed > config.MAX_SPEED: config.curr_max_speed = config.MAX_SPEED
+	else:
+		return False
+	config.curr_max_speed = round(config.curr_max_speed, 2)
+	return True
 
 def sanitize_joy_input():
 	for i in range(len(axis_motion)):
