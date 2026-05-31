@@ -50,3 +50,4 @@ sudo systemctl status rover-runner      # check if running
 sudo journalctl -u rover-runner -f      # live logs
 sudo systemctl stop rover-runner        # stop manually
 sudo systemctl restart rover-runner     # restart
+sudo journalctl -u rover-runner -f      # live logs
