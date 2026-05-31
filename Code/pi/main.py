@@ -56,11 +56,16 @@ def draw():
 	if current_screen == Screen.CONTROLLER:
 		controller.draw(screen)
 	draw_fps()
+	draw_max_speed()
 	pygame.display.update()
 
 def draw_fps():
 	text = font.render(str(int(clock.get_fps())) + " fps", True, (255, 255, 255))
 	screen.blit(text, (10, 10))
+
+def draw_max_speed():
+	text = font.render("max speed: " + str(config.curr_max_speed), True, (255, 255, 255))
+	screen.blit(text, (10, 30))
 
 def close():
 	global running

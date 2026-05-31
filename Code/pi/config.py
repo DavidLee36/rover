@@ -3,7 +3,7 @@
 # SCREEN
 # SCREEN_WIDTH = 1024
 # SCREEN_HEIGHT = 600
-FPS = 100
+FPS = 100 # max
 TITLE = "Rover"
 
 # TEENSY
