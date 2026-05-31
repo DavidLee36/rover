@@ -21,9 +21,9 @@ def get_child_env():
 
 def main():
     os.environ["SDL_VIDEODRIVER"] = "dummy"
-    os.environ["SDL_AUDIODRIVER"] = "dummy"
 
-    pygame.init()
+    pygame.display.init()
+    pygame.joystick.init()
 
     joysticks = {}
     main_proc = None
