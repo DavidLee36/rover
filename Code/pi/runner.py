@@ -44,7 +44,7 @@ def main():
                 print("Controller disconnected")
 
             elif event.type == pygame.JOYBUTTONDOWN:
-                if event.button == config.XBOX_BTN:
+                if event.button == config.START_BTN:
                     if main_proc is None or main_proc.poll() is not None:
                         print("Launching main.py...")
                         main_proc = subprocess.Popen(
