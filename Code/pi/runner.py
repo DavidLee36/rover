@@ -17,6 +17,13 @@ def get_child_env():
     env = os.environ.copy()
     env.pop("SDL_VIDEODRIVER", None)
     env.pop("SDL_AUDIODRIVER", None)
+    # The runner runs under systemd with no desktop session, so main.py needs
+    # the graphical session's variables handed to it to open its pygame window.
+    # The Pi desktop is Wayland; SDL2 reaches it through XWayland at DISPLAY=:0.
+    env.setdefault("DISPLAY", ":0")
+    env.setdefault("WAYLAND_DISPLAY", "wayland-1")
+    env.setdefault("XAUTHORITY", "/home/david/.Xauthority")
+    env.setdefault("XDG_RUNTIME_DIR", "/run/user/1000")
     return env
 
 def main():
