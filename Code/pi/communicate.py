@@ -14,7 +14,8 @@ def send(msg):
 
 ## Convert controller.axis_motion to string teensy expects
 def axis_motion_to_teensy(arr):
+	# IDK HOW I MADE IT THIS FAR BUT F AND R ARE BACKWARD
 	left_dir = "F" if arr[1] > 0 else "R"
 	right_dir = "F" if arr[3] > 0 else "R"
-	r_multi = config.curr_right_multiplier if left_dir == "F" and right_dir == "F" else 1
+	r_multi = config.curr_right_multiplier if left_dir == "R" and right_dir == "R" else 1
 	return f"{left_dir}{round(abs(arr[1]) * config.curr_max_speed)}|{right_dir}{round(abs(arr[3]) * config.curr_max_speed * r_multi)}"

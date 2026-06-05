@@ -2,6 +2,7 @@ import pygame
 import pygame.gfxdraw
 
 import config as config
+import helpers as helpers
 
 joysticks = []
 axis_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
@@ -37,8 +38,10 @@ def handle_input(events):
 				result["toggle_draw"] = True
 			if event.button == config.B_BTN:
 				config.curr_right_multiplier += 0.01
+				config.curr_right_multiplier = helpers.clamp(config.curr_right_multiplier, 0, 1)
 			if event.button == config.X_BTN:
 				config.curr_right_multiplier -= 0.01
+				config.curr_right_multiplier = helpers.clamp(config.curr_right_multiplier, 0, 1)
 
 	for joy in joysticks:
 		if joy.get_button(config.SELECT_BTN) and joy.get_button(config.START_BTN):
