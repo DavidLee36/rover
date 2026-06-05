@@ -64,7 +64,7 @@ def draw_fps():
 	screen.blit(text, (10, 10))
 
 def draw_max_speed():
-	text = font.render("max speed: " + str(config.curr_max_speed), True, (255, 255, 255))
+	text = font.render("max speed: " + str(config.curr_max_speed) + "\nright multi: " + str(round(config.curr_max_speed, 2)), True, (255, 255, 255))
 	screen.blit(text, (10, 30))
 
 def close():

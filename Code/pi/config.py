@@ -15,6 +15,7 @@ DEFAULT_SPEED = 50 # 0 - 100
 MAX_SPEED = 100
 MIN_SPEED = 0
 SPEED_CHANGE = 0.15 # Rate at which to change curr_max_speed per frame
+DEFAULT_RIGHT_MULTIPLIER = 1
 
 # CONTROLLER INPUTS
 A_BTN = 0
@@ -34,3 +35,4 @@ XBOX_BTN = 10
 # REGION - MUTABLE
 
 curr_max_speed = DEFAULT_SPEED
+curr_right_multiplier = DEFAULT_RIGHT_MULTIPLIER

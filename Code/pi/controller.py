@@ -35,6 +35,10 @@ def handle_input(events):
 		if event.type == pygame.JOYBUTTONUP:
 			if event.button == config.RS_BTN:
 				result["toggle_draw"] = True
+			if event.button == config.B_BTN:
+				config.curr_right_multiplier += 0.01
+			if event.button == config.X_BTN:
+				config.curr_right_multiplier -= 0.01
 
 	for joy in joysticks:
 		if joy.get_button(config.SELECT_BTN) and joy.get_button(config.START_BTN):
