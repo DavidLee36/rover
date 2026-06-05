@@ -15,7 +15,7 @@ DEFAULT_SPEED = 50 # 0 - 100
 MAX_SPEED = 100
 MIN_SPEED = 0
 SPEED_CHANGE = 0.15 # Rate at which to change curr_max_speed per frame
-DEFAULT_RIGHT_MULTIPLIER = 1
+DEFAULT_RIGHT_MULTIPLIER = 0.96 # I've found currently 0.96 straightens out the rover
 
 # CONTROLLER INPUTS
 A_BTN = 0
