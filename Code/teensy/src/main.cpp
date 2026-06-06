@@ -12,8 +12,8 @@ unsigned long lastBlinkTime = 0;
 // Motor direction and power: leftFront, leftRear, rightFront, rightRear
 bool motorDirections[4]; // true = forward | false = backward
 int motorPower[4]; // 0-255
-const int PWM_PINS[4] = {2, 4, 6, 8};
-const int DIR_PINS[4] = {3, 5, 7, 9};
+const int PWM_PINS[4] = {33, 36, 28, 29};
+const int DIR_PINS[4] = {34, 35, 26, 27};
 
 void setup()
 {
@@ -23,6 +23,9 @@ void setup()
 	{
 		pinMode(PWM_PINS[i], OUTPUT);
 		pinMode(DIR_PINS[i], OUTPUT);
+		// Push PWM above audible range to kill motor whine.
+		// 20 kHz is the MDD10A's rated max PWM frequency.
+		analogWriteFrequency(PWM_PINS[i], 20000);
 	}
 
 	Serial.begin(115200);
