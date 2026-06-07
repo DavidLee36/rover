@@ -23,6 +23,7 @@ def init():
 	pygame.init()
 	controller.init()
 
+	#screen = pygame.display.set_mode((1200, 720))
 	screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 	clock = pygame.time.Clock()
 	font = pygame.font.SysFont("Arial", 18, bold=True)
@@ -33,7 +34,8 @@ def main_loop():
 		handle_input()
 		if should_draw: draw()
 		if update_teensy:
-			res = comm.send(comm.axis_motion_to_teensy(controller.axis_motion))
+			pass
+			res = comm.send(comm.drivetrain_to_teensy(controller.drivetrain))
 			#print(res)
 		clock.tick(config.FPS)
 	pygame.quit()

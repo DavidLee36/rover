@@ -1,3 +1,5 @@
+from enum import Enum
+
 # REGION - CONSTANTS
 
 # SCREEN
@@ -34,5 +36,11 @@ XBOX_BTN = 10
 
 # REGION - MUTABLE
 
+class ControlMode(Enum):
+	DUAL_JOY = 0
+	SINGLE_JOY = 1
+	AUTONOMOUS = 2
+
 curr_max_speed = DEFAULT_SPEED
 curr_right_multiplier = DEFAULT_RIGHT_MULTIPLIER
+curr_control_mode = ControlMode.SINGLE_JOY
