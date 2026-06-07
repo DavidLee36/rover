@@ -1,5 +1,3 @@
-from enum import Enum
-
 # REGION - CONSTANTS
 
 # SCREEN
@@ -20,9 +18,4 @@ SPEED_CHANGE = 0.15 # Rate at which to change curr_max_speed per frame
 DEFAULT_RIGHT_MULTIPLIER = 0.96 # I've found currently 0.96 straightens out the rover
 
 # Controller button/axis names live in controller_mapping.py (imported as cmap).
-
-
-# REGION - MUTABLE
-
-curr_max_speed = DEFAULT_SPEED
-curr_right_multiplier = DEFAULT_RIGHT_MULTIPLIER
+# Mutable runtime state (speeds, control mode) lives in state.py.

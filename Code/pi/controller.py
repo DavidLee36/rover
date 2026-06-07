@@ -5,6 +5,7 @@ from pygame._sdl2 import controller as sdl_controller
 import config as config
 import controller_mapping as cmap
 import helpers as helpers
+import state as state
 
 controllers = {}  # instance_id -> sdl_controller.Controller
 axis_motion = [0, 0, 0, 0, 0, 0]  # left x, left y, right x, right y, left trigger, right trigger
@@ -53,11 +54,11 @@ def handle_input(events):
 			if event.button == cmap.LS_BTN: # Left stick pressed
 				result["toggle_ctrl_mode"] = True
 			if event.button == cmap.B_BTN: # B button pressed
-				config.curr_right_multiplier += 0.01
-				config.curr_right_multiplier = helpers.clamp(config.curr_right_multiplier, 0, 1)
+				state.curr_right_multiplier += 0.01
+				state.curr_right_multiplier = helpers.clamp(state.curr_right_multiplier, 0, 1)
 			if event.button == cmap.X_BTN: # X button pressed
-				config.curr_right_multiplier -= 0.01
-				config.curr_right_multiplier = helpers.clamp(config.curr_right_multiplier, 0, 1)
+				state.curr_right_multiplier -= 0.01
+				state.curr_right_multiplier = helpers.clamp(state.curr_right_multiplier, 0, 1)
 
 	for ctrl in controllers.values():
 		if ctrl.get_button(cmap.SELECT_BTN) and ctrl.get_button(cmap.START_BTN):
@@ -72,7 +73,7 @@ def on_axis_motion(axis, value):
 		value = -value
 	axis_motion[axis] = value
 	sanitize_joy_input()
-	if config.curr_control_mode == config.ControlMode.DUAL_JOY:
+	if state.curr_ctrl_mode == state.ControlMode.DUAL_JOY:
 		drivetrain[0] = axis_motion[1]
 		drivetrain[1] = axis_motion[3]
 	else:
@@ -95,14 +96,14 @@ def handle_single_joy():
 
 def handle_speed_change(ctrl):
 	if ctrl.get_button(cmap.LB_BTN):
-		config.curr_max_speed -= config.SPEED_CHANGE
-		if config.curr_max_speed < config.MIN_SPEED: config.curr_max_speed = config.MIN_SPEED
+		state.curr_max_speed -= config.SPEED_CHANGE
+		if state.curr_max_speed < config.MIN_SPEED: state.curr_max_speed = config.MIN_SPEED
 	elif ctrl.get_button(cmap.RB_BTN):
-		config.curr_max_speed += config.SPEED_CHANGE
-		if config.curr_max_speed > config.MAX_SPEED: config.curr_max_speed = config.MAX_SPEED
+		state.curr_max_speed += config.SPEED_CHANGE
+		if state.curr_max_speed > config.MAX_SPEED: state.curr_max_speed = config.MAX_SPEED
 	else:
 		return False
-	config.curr_max_speed = round(config.curr_max_speed, 2)
+	state.curr_max_speed = round(state.curr_max_speed, 2)
 	return True
 
 def sanitize_joy_input():

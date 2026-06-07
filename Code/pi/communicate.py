@@ -1,6 +1,7 @@
 import serial
 
 import config as config
+import state as state
 
 ser = serial.Serial(config.COM_LINUX, config.BAUD, timeout=0.1)
 ser.reset_input_buffer()
@@ -18,5 +19,5 @@ def drivetrain_to_teensy(arr):
 	# (forward, after the Y-flip in controller) must send "R"
 	left_dir = "R" if arr[0] > 0 else "F"
 	right_dir = "R" if arr[1] > 0 else "F"
-	r_multi = config.curr_right_multiplier if left_dir == "R" and right_dir == "R" else 1
-	return f"{left_dir}{round(abs(arr[0]) * config.curr_max_speed)}|{right_dir}{round(abs(arr[1]) * config.curr_max_speed * r_multi)}"
+	r_multi = state.curr_right_multiplier if left_dir == "R" and right_dir == "R" else 1
+	return f"{left_dir}{round(abs(arr[0]) * state.curr_max_speed)}|{right_dir}{round(abs(arr[1]) * state.curr_max_speed * r_multi)}"

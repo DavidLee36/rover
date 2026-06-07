@@ -4,17 +4,12 @@ from enum import Enum
 import controller as controller
 import communicate as comm
 import config as config
+import state as state
 
 class Screen(Enum):
 	CONTROLLER = 0
 
-class ControlMode(Enum):
-	DUAL_JOY = 0
-	SINGLE_JOY = 1
-	AUTONOMOUS = 2
-
 current_screen = Screen.CONTROLLER
-curr_ctrl_mode = ControlMode.DUAL_JOY
 
 running = True
 screen = None
@@ -47,7 +42,7 @@ def main_loop():
 	pygame.quit()
 
 def handle_input():
-	global running, update_teensy, should_draw, curr_ctrl_mode
+	global running, update_teensy, should_draw
 	events = pygame.event.get()
 
 	for event in events:
@@ -58,10 +53,10 @@ def handle_input():
 	if result["close"]: close()
 	if result["toggle_draw"]: should_draw = not should_draw
 	if result["toggle_ctrl_mode"]:
-		if curr_ctrl_mode == ControlMode.DUAL_JOY:
-			curr_ctrl_mode = ControlMode.SINGLE_JOY
+		if state.curr_ctrl_mode == state.ControlMode.DUAL_JOY:
+			state.curr_ctrl_mode = state.ControlMode.SINGLE_JOY
 		else:
-			curr_ctrl_mode = ControlMode.DUAL_JOY
+			state.curr_ctrl_mode = state.ControlMode.DUAL_JOY
 	update_teensy = result["needs_update"]
 
 def draw():
@@ -77,8 +72,8 @@ def draw_fps():
 	screen.blit(text, (10, 10))
 
 def draw_max_speed():
-	textMax = font.render("max speed: " + str(config.curr_max_speed), True, (255, 255, 255))
-	textRight = font.render("right multi: " + str(round(config.curr_right_multiplier, 2)), True, (255, 255, 255))
+	textMax = font.render("max speed: " + str(state.curr_max_speed), True, (255, 255, 255))
+	textRight = font.render("right multi: " + str(round(state.curr_right_multiplier, 2)), True, (255, 255, 255))
 	screen.blit(textMax, (10, 30))
 	screen.blit(textRight, (10, 50))
 
