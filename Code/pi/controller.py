@@ -82,8 +82,11 @@ def on_axis_motion(axis, value):
 
 
 def handle_single_joy():
-	throttle = axis_motion[1]  # +1 = forward (Y already flipped in on_axis_motion)
+	throttle = axis_motion[1]
 	turn = axis_motion[0]
+
+	if throttle < 0:  # in reverse, flip steering
+		turn = -turn
 
 	left = throttle + turn
 	right = throttle - turn
