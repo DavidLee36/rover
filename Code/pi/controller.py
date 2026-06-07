@@ -1,64 +1,74 @@
 import pygame
 import pygame.gfxdraw
+from pygame._sdl2 import controller as sdl_controller
 
 import config as config
+import controller_mapping as cmap
 import helpers as helpers
 
-joysticks = []
-axis_motion = [0, 0, 0, 0, -1, -1]  # left x, left y, right x, right y, left trigger, right trigger
+controllers = {}  # instance_id -> sdl_controller.Controller
+axis_motion = [0, 0, 0, 0, 0, 0]  # left x, left y, right x, right y, left trigger, right trigger
 drivetrain = [0, 0]
 
 JOY_CIRCLE_RADIUS = 100
 JOY_DIV = 1.5  # smaller = more inner circle movement relative to outer
 
 def init():
-	pygame.joystick.init()
-	for i in range(pygame.joystick.get_count()):
-		joysticks.append(pygame.joystick.Joystick(i))
+	sdl_controller.init()
+	try:
+		sdl_controller.set_eventstate(True)  # ensure CONTROLLER* events are emitted
+	except Exception:
+		pass  # not present on this pygame build
+	for i in range(sdl_controller.get_count()):  # open any already-connected pad
+		if sdl_controller.is_controller(i):
+			open_controller(i)
+
+def open_controller(device_index):
+	c = sdl_controller.Controller(device_index)
+	# CONTROLLERDEVICEREMOVED / button / axis events report instance_id, so key
+	# by that (device_index is a separate, add-time-only namespace).
+	controllers[c.as_joystick().get_instance_id()] = c
 
 def on_device_added(device_index):
-	joysticks.append(pygame.joystick.Joystick(device_index))
+	open_controller(device_index)
 
 def on_device_removed(instance_id):
-	global joysticks
-	joysticks = [j for j in joysticks if j.get_instance_id() != instance_id]
+	controllers.pop(instance_id, None)
 
 def handle_input(events):
-	result = {"needs_update": False, "close": False, "toggle_draw": False}
+	result = {"needs_update": False, "close": False, "toggle_draw": False, "toggle_ctrl_mode": False}
 
 	for event in events:
-		if event.type == pygame.JOYDEVICEADDED: # Add controller
+		if event.type == pygame.CONTROLLERDEVICEADDED: # Add controller
 			on_device_added(event.device_index)
-		if event.type == pygame.JOYDEVICEREMOVED: # Remove controller
+		if event.type == pygame.CONTROLLERDEVICEREMOVED: # Remove controller
 			on_device_removed(event.instance_id)
-		if event.type == pygame.JOYAXISMOTION: # Joy or trigger update
+		if event.type == pygame.CONTROLLERAXISMOTION: # Joy or trigger update
 			on_axis_motion(event.axis, event.value)
 			result["needs_update"] = True
 
-		if event.type == pygame.JOYBUTTONUP: # Button up
-			if event.button == config.RS_BTN: # Right stick pressed
+		if event.type == pygame.CONTROLLERBUTTONUP: # Button up
+			if event.button == cmap.RS_BTN: # Right stick pressed
 				result["toggle_draw"] = True
-			if event.button == config.LS_BTN: # Left stick pressed
-				if config.curr_control_mode == config.ControlMode.DUAL_JOY:
-					config.curr_control_mode = config.ControlMode.SINGLE_JOY
-				else:
-					config.curr_control_mode = config.ControlMode.DUAL_JOY
-			if event.button == config.B_BTN: # B button pressed
+			if event.button == cmap.LS_BTN: # Left stick pressed
+				result["toggle_ctrl_mode"] = True
+			if event.button == cmap.B_BTN: # B button pressed
 				config.curr_right_multiplier += 0.01
 				config.curr_right_multiplier = helpers.clamp(config.curr_right_multiplier, 0, 1)
-			if event.button == config.X_BTN: # X button pressed
+			if event.button == cmap.X_BTN: # X button pressed
 				config.curr_right_multiplier -= 0.01
 				config.curr_right_multiplier = helpers.clamp(config.curr_right_multiplier, 0, 1)
 
-	for joy in joysticks:
-		if joy.get_button(config.SELECT_BTN) and joy.get_button(config.START_BTN):
+	for ctrl in controllers.values():
+		if ctrl.get_button(cmap.SELECT_BTN) and ctrl.get_button(cmap.START_BTN):
 			result["close"] = True
-		if handle_speed_change(joy): result["needs_update"] = True
+		if handle_speed_change(ctrl): result["needs_update"] = True
 
 	return result
 
 def on_axis_motion(axis, value):
-	if axis == 1 or axis == 3:  # flip Y axes once at ingestion so up = +1, down = -1
+	value = value / cmap.AXIS_MAX  # SDL gives ints; normalize to ~-1..1 (triggers 0..1)
+	if axis == cmap.LEFT_Y or axis == cmap.RIGHT_Y:  # flip Y axes so up = +1, down = -1
 		value = -value
 	axis_motion[axis] = value
 	sanitize_joy_input()
@@ -68,7 +78,7 @@ def on_axis_motion(axis, value):
 	else:
 		handle_single_joy()
 	#print(axis_motion, " | ",  drivetrain)
-	
+
 
 def handle_single_joy():
 	throttle = axis_motion[1]  # +1 = forward (Y already flipped in on_axis_motion)
@@ -83,11 +93,11 @@ def handle_single_joy():
 	drivetrain[0] = round(left / m, 2)
 	drivetrain[1] = round(right / m, 2)
 
-def handle_speed_change(joy):
-	if joy.get_button(config.LB_BUTTON):
+def handle_speed_change(ctrl):
+	if ctrl.get_button(cmap.LB_BTN):
 		config.curr_max_speed -= config.SPEED_CHANGE
 		if config.curr_max_speed < config.MIN_SPEED: config.curr_max_speed = config.MIN_SPEED
-	elif joy.get_button(config.RB_BTN):
+	elif ctrl.get_button(cmap.RB_BTN):
 		config.curr_max_speed += config.SPEED_CHANGE
 		if config.curr_max_speed > config.MAX_SPEED: config.curr_max_speed = config.MAX_SPEED
 	else:

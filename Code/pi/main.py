@@ -8,7 +8,13 @@ import config as config
 class Screen(Enum):
 	CONTROLLER = 0
 
+class ControlMode(Enum):
+	DUAL_JOY = 0
+	SINGLE_JOY = 1
+	AUTONOMOUS = 2
+
 current_screen = Screen.CONTROLLER
+curr_ctrl_mode = ControlMode.DUAL_JOY
 
 running = True
 screen = None
@@ -41,7 +47,7 @@ def main_loop():
 	pygame.quit()
 
 def handle_input():
-	global running, update_teensy, should_draw
+	global running, update_teensy, should_draw, curr_ctrl_mode
 	events = pygame.event.get()
 
 	for event in events:
@@ -51,6 +57,11 @@ def handle_input():
 	result = controller.handle_input(events)
 	if result["close"]: close()
 	if result["toggle_draw"]: should_draw = not should_draw
+	if result["toggle_ctrl_mode"]:
+		if curr_ctrl_mode == ControlMode.DUAL_JOY:
+			curr_ctrl_mode = ControlMode.SINGLE_JOY
+		else:
+			curr_ctrl_mode = ControlMode.DUAL_JOY
 	update_teensy = result["needs_update"]
 
 def draw():

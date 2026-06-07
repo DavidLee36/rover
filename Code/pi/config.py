@@ -19,28 +19,10 @@ MIN_SPEED = 0
 SPEED_CHANGE = 0.15 # Rate at which to change curr_max_speed per frame
 DEFAULT_RIGHT_MULTIPLIER = 0.96 # I've found currently 0.96 straightens out the rover
 
-# CONTROLLER INPUTS
-A_BTN = 0
-B_BTN = 1
-X_BTN = 2
-Y_BTN = 3
-LB_BUTTON = 4 # left bumper
-RB_BTN = 5 # right bumper
-SELECT_BTN = 6
-START_BTN = 7
-LS_BTN = 8 # left stick
-RS_BTN = 9 # right stick
-XBOX_BTN = 10
-
+# Controller button/axis names live in controller_mapping.py (imported as cmap).
 
 
 # REGION - MUTABLE
 
-class ControlMode(Enum):
-	DUAL_JOY = 0
-	SINGLE_JOY = 1
-	AUTONOMOUS = 2
-
 curr_max_speed = DEFAULT_SPEED
 curr_right_multiplier = DEFAULT_RIGHT_MULTIPLIER
-curr_control_mode = ControlMode.SINGLE_JOY
