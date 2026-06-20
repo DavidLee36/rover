@@ -1,3 +1,13 @@
+// ─── Rover drivetrain constants (for upcoming encoder/PID + odometry work) ───
+// Motors:   4x goBILDA Yellow Jacket 19.2:1, 312 RPM output (no load)
+// Encoder:  537.7 counts per wheel revolution (PJRC Encoder lib, x4 quadrature)
+// Wheel:    134 mm diameter -> 421.0 mm circumference -> 0.783 mm per tick
+// Speed:    ~2.19 m/s top (no load) -> ~2800 ticks/sec/wheel at full speed
+// Encoder wiring (verified): power from Teensy 3.3V (NOT 5V); A/B pairs
+//           LF=2/3 LR=4/5 RF=6/7 RR=8/9. See Code/teensy/src/encoder_test.cpp
+//           (env `enctest`). Wheel diameter is the dominant odometry-scale
+//           error; recalibrate by driving a measured distance later.
+// ─────────────────────────────────────────────────────────────────────────────
 #include <Arduino.h>
 #include <cctype>
 
